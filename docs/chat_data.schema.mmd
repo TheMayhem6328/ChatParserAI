@@ -8,7 +8,7 @@ config:
 flowchart LR
     subgraph main[ ]
         style main fill:none,stroke:none,color:#777
-        JSON([JSON Root]) --> formatRevision["formatRevision: Number"]
+        JSON([JSON Root]) --> formatRevision["formatRevision: Integer"]
             formatRevision --- formatRevision1("Revision count of this schema format (presently 0)")
         JSON([JSON Root]) --> attributes["attributes: Object"]
             attributes --> platform["platform: String"]
@@ -21,30 +21,30 @@ flowchart LR
                 mainJsonType --> mainJsonType2{{"Group"}}
             attributes --> participants["participants: Array"]
                 participants --> participantName["participantName: String"]
-                    participantName --- participantName1("Name of Sender")
+                    participantName --- participantName1("Name of participant")
             attributes --> filePath["filePath: String"]
-                filePath --- filePath1("File data was collected from")
+                filePath --- filePath1("Absolute path to file data was collected from")
         JSON --> messages["messages: Array"]
             messages --> message["message: Object?"]
                 message --> id["id: String"]
                     id --- id1("Platform provided ID of message")
-                message --> timestamp["timestamp: String"]
+                message --> sequence["sequence: Integer"]
+                    sequence --- sequence1("Sequence the message was read in")
+                message --> timestamp["timestamp: String?"]
                     timestamp --- timestamp1("Timedate when message was sent")
-                message --> author["author: String"]
-                    author --- author1("Sender of message")
                 message --> messageType["type: String"]
                     messageType --> type1{{"Text"}}
                     messageType --> type2{{"Media"}}
                     messageType --> type3{{"System"}}
+                message --> author["author: String"]
+                    author --- author1("Sender of message")
                 message --> body["body: String?"]
                     body --- body1("Text contents of message")
                 message --> context["context: Object?"]
-                    context -->contextyTo["contextTo: Number?"]
+                    context -->contextyTo["to: Integer?"]
                         contextTo --> contextTo1("Sequence of contextual message")
-                    context --> contextText["replyText: String"]
+                    context --> contextText["text: String"]
                         contextText --> contextText1("Text of contextual message")
-                message --> sequence["sequence: Number"]
-                    sequence --- sequence1("Sequence the message was read in")
                 message --> attachments["attachments: Array"]
                     subgraph attachmentsSubgraph[ ]
                         style attachmentsSubgraph fill:none,stroke:none
@@ -56,9 +56,9 @@ flowchart LR
                     attachments --> attachment["attachment: Object?"]
                 message --> reactions["reactions: Array"]
                     reactions --> reaction["reaction: Object?"]
-                        reaction --> reactionName["reactionName: String"]
+                        reaction --> reactionName["name: String"]
                             reactionName --- reactionName1("Name of reaction")
-                        reaction --> reactionAuthor["reactionAuthor: String"]
+                        reaction --> reactionAuthor["author: String"]
                             reactionAuthor --- reactionAuthor1("Author of reaction")
 
         subgraph legend[ ]

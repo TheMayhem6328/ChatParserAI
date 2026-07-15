@@ -5,9 +5,177 @@
     "description": "An individual chat, could be direct message or group",
     "type": "object",
     "properties": {
-        "platform": {},
-        "sender": {},
-        "receiverType": {}
+        "formatRevision": {
+            "description": "Revision count of this schema format (presently 0)",
+            "type": "integer",
+            "exclusiveMinimum": -1
+        },
+        "attributes": {
+            "type": "object",
+            "properties": {
+                "platform": {
+                    "enum": [
+                        "TelegramHTML",
+                        "DiscordHTML"
+                    ]
+                },
+                "chatName": {
+                    "description": "Name of the chat",
+                    "type": "string"
+                },
+                "type": {
+                    "enum": [
+                        "Direct",
+                        "Group"
+                    ]
+                },
+                "participants": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "filePath": {
+                    "description": "Absolute path to file data was collected from",
+                    "type": "string"
+                }
+            },
+            "required": [
+                "platform",
+                "chatName",
+                "type",
+                "participants",
+                "filePath"
+            ]
+        },
+        "messages": {
+            "type": "array",
+            "items": {
+                "type": [
+                    "object",
+                    "null"
+                ],
+                "properties": {
+                    "id": {
+                        "description": "Platform provided ID of message",
+                        "type": "string"
+                    },
+                    "sequence": {
+                        "description": "Sequence the message was read in",
+                        "type": "integer"
+                    },
+                    "timestamp": {
+                        "description": "Timedate when message was sent",
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "type": {
+                        "enum": [
+                            "Text",
+                            "Media",
+                            "System"
+                        ]
+                    },
+                    "author": {
+                        "description": "Sender of message",
+                        "type": "string"
+                    },
+                    "body": {
+                        "description": "Text contents of message",
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "context": {
+                        "type": [
+                            "object",
+                            "null"
+                        ],
+                        "properties": {
+                            "to": {
+                                "description": "Sequence of contextual message",
+                                "type": [
+                                    "integer",
+                                    "null"
+                                ]
+                            },
+                            "text": {
+                                "description": "Text of contextual message",
+                                "type": "string"
+                            }
+                        },
+                        "required": [
+                            "to",
+                            "text"
+                        ]
+                    },
+                    "attachments": {
+                        "type": "array",
+                        "items": {
+                            "type": [
+                                "object",
+                                "null"
+                            ],
+                            "properties": {
+                                "mime": {
+                                    "description": "MIME type of attachment",
+                                    "type": "string"
+                                },
+                                "url": {
+                                    "description": "URL of attachment",
+                                    "type": "string"
+                                }
+                            },
+                            "required": [
+                                "mime",
+                                "url"
+                            ]
+                        }
+                    },
+                    "reactions": {
+                        "type": "array",
+                        "items": {
+                            "type": [
+                                "object",
+                                "null"
+                            ],
+                            "properties": {
+                                "name": {
+                                    "description": "Name of reaction",
+                                    "type": "string"
+                                },
+                                "author": {
+                                    "description": "Author of reaction",
+                                    "type": "string"
+                                }
+                            },
+                            "required": [
+                                "name",
+                                "author"
+                            ]
+                        }
+                    }
+                },
+                "required": [
+                    "id",
+                    "sequence",
+                    "timestamp",
+                    "type",
+                    "author",
+                    "body",
+                    "context",
+                    "attachments",
+                    "reactions"
+                ]
+            }
+        }
     },
-    "required": ["platform", "sender", "receiverType"]
+    "required": [
+        "formatRevision",
+        "attributes",
+        "messages"
+    ]
 }
