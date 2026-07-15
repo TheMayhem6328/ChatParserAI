@@ -1,0 +1,72 @@
+---
+title: Chat data JSON schema diagram
+config:
+  layout: elk
+  theme: neutral
+---
+
+flowchart LR
+    subgraph main[ ]
+        style main fill:none,stroke:none,color:#777
+        JSON([JSON Root]) --> formatRevision["formatRevision: Number"]
+            formatRevision --- formatRevision1("Revision count of this schema format (presently 0)")
+        JSON([JSON Root]) --> attributes["attributes: Object"]
+            attributes --> platform["platform: String"]
+                platform --> platform1{{"TelegramHTML"}}
+                platform --> platform2{{"DiscordHTML"}}
+            attributes --> chatName["chatName: String"]
+                chatName --- chatName1("Name of the chat")
+            attributes --> mainJsonType["type: String"]
+                mainJsonType --> mainJsonType1{{"Direct"}}
+                mainJsonType --> mainJsonType2{{"Group"}}
+            attributes --> participants["participants: Array"]
+                participants --> participantName["participantName: String"]
+                    participantName --- participantName1("Name of Sender")
+            attributes --> filePath["filePath: String"]
+                filePath --- filePath1("File data was collected from")
+        JSON --> messages["messages: Array"]
+            messages --> message["message: Object?"]
+                message --> id["id: String"]
+                    id --- id1("Platform provided ID of message")
+                message --> timestamp["timestamp: String"]
+                    timestamp --- timestamp1("Timedate when message was sent")
+                message --> author["author: String"]
+                    author --- author1("Sender of message")
+                message --> messageType["type: String"]
+                    messageType --> type1{{"Text"}}
+                    messageType --> type2{{"Media"}}
+                    messageType --> type3{{"System"}}
+                message --> body["body: String?"]
+                    body --- body1("Text contents of message")
+                message --> reply["reply: Object?"]
+                    reply --> replyTo["replyTo: Number?"]
+                        replyTo --> replyTo1("Sequence of message replied to")
+                    reply --> replyText["replyText: String"]
+                        replyText --> replyText1("Text of message replied to")
+                message --> sequence["sequence: Number"]
+                    sequence --- sequence1("Sequence the message was read in")
+                message --> attachments["attachments: Array"]
+                    subgraph attachmentsSubgraph[ ]
+                        style attachmentsSubgraph fill:none,stroke:none
+                        attachment --> attachmentMime["mime: String"]
+                            attachmentMime --- attachmentMime1("MIME type of attachment")
+                        attachment --> attachmentUrl["url: String"]
+                            attachmentUrl --- attachmentUrl1("URL of attachment")
+                    end
+                    attachments --> attachment["attachment: Object?"]
+                message --> reactions["reactions: Array"]
+                    reactions --> reaction["reaction: Object?"]
+                        reaction --> reactionName["reactionName: String"]
+                            reactionName --- reactionName1("Name of reaction")
+                        reaction --> reactionCount["reactionCount: String"]
+                            reactionCount --- reactionCount1("Count of reaction")
+
+        subgraph legend[ ]
+            subroot["Legend"]
+                style subroot fill:none,stroke:none
+                subroot ~~~ root([Root Node])
+                subroot ~~~ attribute["Attribute"]
+                subroot ~~~ description("Description")
+                subroot ~~~ enum{{"Enumerate"}}
+        end
+    end

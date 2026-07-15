@@ -1,0 +1,13 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "chat_data.schema.json",
+    "title": "Chat Data",
+    "description": "An individual chat, could be direct message or group",
+    "type": "object",
+    "properties": {
+        "platform": {},
+        "sender": {},
+        "receiverType": {}
+    },
+    "required": ["platform", "sender", "receiverType"]
+}
