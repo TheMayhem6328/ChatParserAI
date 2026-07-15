@@ -38,11 +38,11 @@ flowchart LR
                     messageType --> type3{{"System"}}
                 message --> body["body: String?"]
                     body --- body1("Text contents of message")
-                message --> reply["reply: Object?"]
-                    reply --> replyTo["replyTo: Number?"]
-                        replyTo --> replyTo1("Sequence of message replied to")
-                    reply --> replyText["replyText: String"]
-                        replyText --> replyText1("Text of message replied to")
+                message --> context["context: Object?"]
+                    context -->contextyTo["contextTo: Number?"]
+                        contextTo --> contextTo1("Sequence of contextual message")
+                    context --> contextText["replyText: String"]
+                        contextText --> contextText1("Text of contextual message")
                 message --> sequence["sequence: Number"]
                     sequence --- sequence1("Sequence the message was read in")
                 message --> attachments["attachments: Array"]
@@ -58,8 +58,8 @@ flowchart LR
                     reactions --> reaction["reaction: Object?"]
                         reaction --> reactionName["reactionName: String"]
                             reactionName --- reactionName1("Name of reaction")
-                        reaction --> reactionCount["reactionCount: String"]
-                            reactionCount --- reactionCount1("Count of reaction")
+                        reaction --> reactionAuthor["reactionAuthor: String"]
+                            reactionAuthor --- reactionAuthor1("Author of reaction")
 
         subgraph legend[ ]
             subroot["Legend"]
