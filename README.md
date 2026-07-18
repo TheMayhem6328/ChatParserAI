@@ -11,3 +11,15 @@ datamodel-codegen --input chat_data.schema.json --output rough/stuff.py --preset
 ## Files
 
 - `telegram_html.py` - reads Telegram official exports
+
+## To-Do
+- Telegram
+  - [ ] Reply context
+  - [ ] Media
+    - [ ] Image/Video
+    - [ ] GIF
+    - [ ] Calls
+- Schema
+  - Message
+    - [ ] Calls
+- [ ] Discord
