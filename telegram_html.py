@@ -2,7 +2,7 @@ import os
 import re
 import bs4
 from datetime import datetime
-import chat_data_types as cdt
+import chat_data_types as data
 
 # Get list of message files to parse
 DIRECTORY = "demo\\Telegram\\html\\1"
@@ -22,12 +22,12 @@ def date_telegram_to_iso(original_date: str) -> str:
 for filename in [filenames[0]]:
     with open(DIRECTORY + f"\\{filename}", encoding="utf-8") as file:
         # Initialize Chat Data
-        chat = cdt.ChatData(
+        chat = data.ChatData(
             format_revision=0,
-            attributes=cdt.Attributes(
-                platform=cdt.Platform.telegram_html,
+            attributes=data.Attributes(
+                platform=data.Platform.telegram_html,
                 chat_name="",
-                type=cdt.Type.direct,
+                type=data.Type.direct,
                 participants=[],
                 file_path="",
             ),
@@ -40,21 +40,21 @@ for filename in [filenames[0]]:
         # Populate attributes
         chat.attributes.file_path = os.path.abspath(file.name)
         chat.attributes.chat_name = (
-            soup.find("div", attrs={"class": ["page_header"]})
-            .find("div", attrs={"class": ["text"]})
+            soup.find("div", class_="page_header")
+            .find("div", class_="text")
             .text.strip()
         )
 
+        author: str = ""
+        authors: set[str] = set()
         # Find all messages
-        for idx, element in enumerate(
-            soup.find_all("div", attrs={"class": ["message"]})
-        ):
+        for idx, message_element in enumerate(soup.find_all("div", class_="message")):
             # Initialize Message Data
-            msg = cdt.Message(
-                id=str(element["id"]),
+            msg = data.Message(
+                id=str(message_element["id"]),
                 sequence=idx,
                 timestamp=None,
-                type=cdt.Type1.text,
+                type=data.Type1.text,
                 author="",
                 body=None,
                 context=None,
@@ -63,15 +63,16 @@ for filename in [filenames[0]]:
             )
 
             # Parse service messages
-            if "service" in element["class"]:
+            if "service" in message_element["class"]:
                 # Update message data
-                msg.type = cdt.Type1.system
-                msg.body = element.text.strip()
+                msg.type = data.Type1.system
+                msg.body = message_element.text.strip()
+                author = ""
 
             # Parse user messages
-            elif "default" in element["class"]:
+            elif "default" in message_element["class"]:
                 # Update timestamp
-                timestamp_element = element.find(
+                timestamp_element = message_element.find(
                     "div", attrs={"class": ["date", "details"]}
                 )
                 if timestamp_element is not None:
@@ -80,12 +81,23 @@ for filename in [filenames[0]]:
                     )
 
                 # Update body
-                body = element.find("div", attrs={"class": ["text"]})
+                body = message_element.find("div", class_="text")
                 if body is not None:
                     msg.body = body.text.strip()
 
+                # Update author
+                if (
+                    author_element := message_element.find("div", class_="from_name")
+                ) is not None:
+                    new_author = author_element.text.strip()
+                    author = new_author if new_author != author else author
+                    authors.add(author)
+                msg.author = author
+
             # Print
-            print(msg.model_dump())
+            chat.attributes.participants = [*authors]
+            print(msg)
+            #print(f"{msg.type.value}{(' ' if msg.author != "" else "") + msg.author}: {msg.body}")
             chat.messages.append(msg)
 
     print(chat)
