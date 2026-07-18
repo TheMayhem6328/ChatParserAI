@@ -2,17 +2,23 @@ import os
 import re
 import bs4
 
-# Get list of files to import
+# Get list of message files to parse
 DIRECTORY = "demo\\Telegram\\html\\1"
 message_regex = re.compile(r"^messages(\d)*.html")
 filenames = [filename for filename in os.listdir(DIRECTORY) if message_regex.search(filename)]
 
-# Import HTML to memory
-raw_html_contents = []
-for filename in filenames:
-    temp_content = ""
+# Open each message file
+for filename in [filenames[0]]:
     with open(DIRECTORY+f"\\{filename}", encoding="utf-8") as file:
-        temp_content = file.read()
-        raw_html_contents.append(temp_content)
+        # Parse file
+        soup = bs4.BeautifulSoup(file, features="lxml")
 
-raw_html_content = raw_html_contents[0]
+        # Find all messages
+        for element in soup.find_all("div", attrs={"class": ["message"]}):
+            # Print service messages
+            if "service" in element['class']:
+                print("SVC:", element.text.strip())
+            elif "default" in element['class']:
+                text = element.find("div", attrs={"class": ["text"]})
+                if text is not None:
+                    print("USR:", text.text.strip())
