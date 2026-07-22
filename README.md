@@ -1,5 +1,9 @@
 # Chat Parser AI
 
+## Env
+
+Tested on Py 3.14.6 on Win11
+
 ## Procedural Stuff
 
 Python types generated from schema using:

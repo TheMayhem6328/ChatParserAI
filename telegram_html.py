@@ -3,9 +3,11 @@ import re
 import bs4
 from datetime import datetime
 import chat_data_types as data
+import filetype_tester as filetype
+from urllib.parse import urlparse
 
 # Get list of message files to parse
-DIRECTORY = "demo\\Telegram\\html\\1"
+DIRECTORY = "demo\\Telegram\\html\\2\\"
 message_regex = re.compile(r"^messages(\d)*.html")
 filenames = [
     filename for filename in os.listdir(DIRECTORY) if message_regex.search(filename)
@@ -14,8 +16,7 @@ filenames = [
 
 # Helper function
 def date_telegram_to_iso(original_date: str) -> str:
-    dt = datetime.strptime(original_date, r"%d.%m.%Y %H:%M:%S UTC%z")
-    return dt.isoformat()
+    return datetime.strptime(original_date, r"%d.%m.%Y %H:%M:%S UTC%z").isoformat()
 
 
 # Open each message file
@@ -29,7 +30,7 @@ for filename in [filenames[0]]:
                 chat_name="",
                 type=data.Type.direct,
                 participants=[],
-                file_path="",
+                file_path=os.path.abspath(file.name),
             ),
             messages=[],
         )
@@ -38,7 +39,6 @@ for filename in [filenames[0]]:
         soup = bs4.BeautifulSoup(file, features="lxml")
 
         # Populate attributes
-        chat.attributes.file_path = os.path.abspath(file.name)
         chat.attributes.chat_name = (
             soup.find("div", class_="page_header")
             .find("div", class_="text")
@@ -85,6 +85,20 @@ for filename in [filenames[0]]:
                 if body is not None:
                     msg.body = body.text.strip()
 
+                # Update attachments
+                media_element = message_element.find("div", class_="media_wrap")
+                if media_element is not None:
+                    if media_element.find("div", class_="media_call") is not None:
+                        print("CALL")
+                    elif media_element.find("a", class_="media_location") is not None:
+                        print(media_element.find("a").attrs["href"])
+                    else:
+                        attach = data.Attachment(url="", mime="")
+                        fname = media_element.find("a").attrs["href"].replace("/", "\\")
+                        attach.url = os.path.abspath(DIRECTORY+fname)
+                        attach.mime = filetype.check_mime(attach.url)
+                        msg.attachments.append(attach)
+
                 # Update author
                 if (
                     author_element := message_element.find("div", class_="from_name")
@@ -97,7 +111,7 @@ for filename in [filenames[0]]:
             # Print
             chat.attributes.participants = [*authors]
             print(msg)
-            #print(f"{msg.type.value}{(' ' if msg.author != "" else "") + msg.author}: {msg.body}")
+            # print(f"{msg.type.value}{(' ' if msg.author != "" else "") + msg.author}: {msg.body}")
             chat.messages.append(msg)
 
     print(chat)
