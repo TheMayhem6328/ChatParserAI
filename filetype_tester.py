@@ -1,11 +1,13 @@
 import os
 import zipfile
+import platform
 
-# Add libfile to path
+# Add libfile to path on Windows
 # MUST BE POSITIONED BEFORE `import magic`
-new_path = os.path.abspath("deps\\file-windows")
-path_separator = os.pathsep
-os.environ["PATH"] = f"{new_path}{path_separator}{os.environ['PATH']}"
+if platform.system() == "Windows":
+    new_path = os.path.abspath("deps/file-windows")
+    path_separator = os.pathsep
+    os.environ["PATH"] = f"{new_path}{path_separator}{os.environ['PATH']}"
 
 import magic
 
@@ -23,8 +25,3 @@ def check_mime(fname: str) -> str:
                 mime = "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
 
     return mime
-
-
-if __name__ == "__main__":
-    x = check_mime("C:\\Users\\mayhem6328\\Downloads\\74\\DC\\17072026\\Assets\\Blade-8a1398f95a8b1001.blend")
-    print(x)

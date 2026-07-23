@@ -7,7 +7,7 @@ import filetype_tester as filetype
 from urllib.parse import urlparse
 
 # Get list of message files to parse
-DIRECTORY = "demo\\Telegram\\html\\2\\"
+DIRECTORY = "demo/Telegram/html/2/"
 message_regex = re.compile(r"^messages(\d)*.html")
 filenames = [
     filename for filename in os.listdir(DIRECTORY) if message_regex.search(filename)
@@ -21,7 +21,7 @@ def date_telegram_to_iso(original_date: str) -> str:
 
 # Open each message file
 for filename in [filenames[0]]:
-    with open(DIRECTORY + f"\\{filename}", encoding="utf-8") as file:
+    with open(DIRECTORY + f"/{filename}", encoding="utf-8") as file:
         # Initialize Chat Data
         chat = data.ChatData(
             format_revision=0,
@@ -88,14 +88,15 @@ for filename in [filenames[0]]:
                 # Update attachments
                 media_element = message_element.find("div", class_="media_wrap")
                 if media_element is not None:
+                    msg.type = data.Type1.media
                     if media_element.find("div", class_="media_call") is not None:
                         print("CALL")
                     elif media_element.find("a", class_="media_location") is not None:
                         print(media_element.find("a").attrs["href"])
                     else:
                         attach = data.Attachment(url="", mime="")
-                        fname = media_element.find("a").attrs["href"].replace("/", "\\")
-                        attach.url = os.path.abspath(DIRECTORY+fname)
+                        fname = media_element.find("a").attrs["href"]
+                        attach.url = os.path.abspath(DIRECTORY+str(fname))
                         attach.mime = filetype.check_mime(attach.url)
                         msg.attachments.append(attach)
 
@@ -114,4 +115,4 @@ for filename in [filenames[0]]:
             # print(f"{msg.type.value}{(' ' if msg.author != "" else "") + msg.author}: {msg.body}")
             chat.messages.append(msg)
 
-    print(chat)
+    #print(chat)
