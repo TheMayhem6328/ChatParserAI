@@ -4,9 +4,34 @@
     "title": "Chat Data",
     "description": "An individual chat, could be direct message or group",
     "type": "object",
+    "$defs": {
+        "author": {
+            "type": "object",
+            "properties": {
+                "name": {
+                    "description": "Sender of message",
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "type": {
+                    "enum": [
+                        "Human",
+                        "Bot",
+                        "System",
+                        "Webhook"
+                    ]
+                }
+            },
+            "required": [
+                "type"
+            ]
+        }
+    },
     "properties": {
         "formatRevision": {
-            "description": "Revision count of this schema format (presently 0)",
+            "description": "Revision count of this schema format (presently 1)",
             "type": "integer",
             "exclusiveMinimum": -1
         },
@@ -32,7 +57,7 @@
                 "participants": {
                     "type": "array",
                     "items": {
-                        "type": "string"
+                        "$ref": "#/$defs/author"
                     }
                 },
                 "filePath": {
@@ -75,12 +100,13 @@
                         "enum": [
                             "Text",
                             "Media",
-                            "System"
+                            "System",
+                            "Call"
                         ]
                     },
                     "author": {
                         "description": "Sender of message",
-                        "type": "string"
+                        "$ref": "#/$defs/author"
                     },
                     "body": {
                         "description": "Text contents of message",
@@ -149,7 +175,7 @@
                                 },
                                 "author": {
                                     "description": "Author of reaction",
-                                    "type": "string"
+                                    "$ref": "#/$defs/author"
                                 }
                             },
                             "required": [
@@ -157,6 +183,36 @@
                                 "author"
                             ]
                         }
+                    },
+                    "callInfo": {
+                        "type": [
+                            "object",
+                            "null"
+                        ],
+                        "properties": {
+                            "recipient": {
+                                "description": "Recipient of call",
+                                "$ref": "#/$defs/author"
+                            },
+                            "duration": {
+                                "description": "Duration of call (in seconds)",
+                                "type": "integer"
+                            },
+                            "isSuccess": {
+                                "description": "Whether call was successful or not",
+                                "type": "boolean"
+                            },
+                            "isOutgoing": {
+                                "description": "Whether call was outgoing or not",
+                                "type": "boolean"
+                            }
+                        },
+                        "required": [
+                            "recipient",
+                            "duration",
+                            "isSuccess",
+                            "isOutgoing"
+                        ]
                     }
                 },
                 "required": [
@@ -168,7 +224,8 @@
                     "body",
                     "context",
                     "attachments",
-                    "reactions"
+                    "reactions",
+                    "callInfo"
                 ]
             }
         }

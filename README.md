@@ -27,9 +27,12 @@ datamodel-codegen --input chat_data.schema.json --output rough/stuff.py --preset
     - [X] Image/Video
     - [X] GIF
     - [ ] Calls
+    - [ ] Reactions
+  - [ ] Message Forwarding
 - [ ] Schema
   - [ ] Message
-    - [ ] Calls
+    - [X] Calls
+    - [ ] Message Forwarding
 - [ ] Discord
 - [ ] Overall
   - [ ] Better file/directory layout and nomenclature

@@ -9,7 +9,7 @@ flowchart LR
     subgraph main[ ]
         style main fill:none,stroke:none,color:#777
         JSON([JSON Root]) --> formatRevision["formatRevision: Integer"]
-            formatRevision --- formatRevision1("Revision count of this schema format (presently 0)")
+            formatRevision --- formatRevision1("Revision count of this schema format (presently 1)")
         JSON([JSON Root]) --> attributes["attributes: Object"]
             attributes --> platform["platform: String"]
                 platform --> platform1{{"TelegramHTML"}}
@@ -20,8 +20,9 @@ flowchart LR
                 mainJsonType --> mainJsonType1{{"Direct"}}
                 mainJsonType --> mainJsonType2{{"Group"}}
             attributes --> participants["participants: Array"]
-                participants --> participantName["participantName: String"]
-                    participantName --- participantName1("Name of participant")
+                participants --> participant["participant: author"]
+                    participant --> author
+                    participant --- participant1("Participant author")
             attributes --> filePath["filePath: String"]
                 filePath --- filePath1("Absolute path to file data was collected from")
         JSON --> messages["messages: Array"]
@@ -33,15 +34,22 @@ flowchart LR
                 message --> timestamp["timestamp: String?"]
                     timestamp --- timestamp1("Timedate when message was sent")
                 message --> messageType["type: String"]
-                    messageType --> type1{{"Text"}}
-                    messageType --> type2{{"Media"}}
-                    messageType --> type3{{"System"}}
-                message --> author["author: String"]
-                    author --- author1("Sender of message")
+                    messageType --> messageType1{{"Text"}}
+                    messageType --> messageType2{{"Media"}}
+                    messageType --> messageType3{{"System"}}
+                    messageType --> messageType4{{"Call"}}
+                message --> author["author: Object"]
+                    author --> authorName["name: String?"]
+                        authorName --- authorName1("Sender of message")
+                    author --> authorType["type: String"]
+                        authorType --> authorType1{{"Human"}}
+                        authorType --> authorType2{{"Bot"}}
+                        authorType --> authorType3{{"System"}}
+                        authorType --> authorType4{{"Webhook"}}
                 message --> body["body: String?"]
                     body --- body1("Text contents of message")
                 message --> context["context: Object?"]
-                    context -->contextyTo["to: Integer?"]
+                    context -->contextTo["to: Integer?"]
                         contextTo --> contextTo1("Sequence of contextual message")
                     context --> contextText["text: String"]
                         contextText --> contextText1("Text of contextual message")
@@ -58,8 +66,21 @@ flowchart LR
                     reactions --> reaction["reaction: Object?"]
                         reaction --> reactionName["name: String"]
                             reactionName --- reactionName1("Name of reaction")
-                        reaction --> reactionAuthor["author: String"]
+                        reaction --> reactionAuthor["author: author"]
+                            reactionAuthor --> author
                             reactionAuthor --- reactionAuthor1("Author of reaction")
+                message --> callInfo["callInfo: Object?"]
+                    callInfo --> callRecipient["recipient: String"]
+                        callRecipient --> callRecipient1("Recipient of call")
+                    callInfo --> callDuration["duration: Integer"]
+                        callDuration --> callDuration1("Duration of call (in seconds)")
+                    callInfo --> callIsSuccess["isSuccess: Boolean"]
+                        callIsSuccess --> callIsSuccess1("Whether call was successful or not")
+                    callInfo --> callIsOutgoing["isOutgoing: Boolean"]
+                        callIsOutgoing --> callIsOutgoing1("Whether call was outgoing or not")
+                %% To be implemented in next revision
+                %% message --> forwarded["forwarded: message?"]
+                %%     forwarded --> forwarded1("s")
 
         subgraph legend[ ]
             subroot["Legend"]

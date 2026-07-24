@@ -45,8 +45,7 @@ for filename in [filenames[0]]:
             .text.strip()
         )
 
-        author: str = ""
-        authors: set[str] = set()
+        authors: set[tuple[str | None, data.Type2]] = set()
         # Find all messages
         for idx, message_element in enumerate(soup.find_all("div", class_="message")):
             # Initialize Message Data
@@ -55,11 +54,12 @@ for filename in [filenames[0]]:
                 sequence=idx,
                 timestamp=None,
                 type=data.Type1.text,
-                author="",
+                author=data.Author(type=data.Type2.human),
                 body=None,
                 context=None,
                 attachments=[],
                 reactions=[],
+                call_info=None,
             )
 
             # Parse service messages
@@ -67,7 +67,7 @@ for filename in [filenames[0]]:
                 # Update message data
                 msg.type = data.Type1.system
                 msg.body = message_element.text.strip()
-                author = ""
+                msg.author.type = data.Type2.system
 
             # Parse user messages
             elif "default" in message_element["class"]:
@@ -96,7 +96,7 @@ for filename in [filenames[0]]:
                     else:
                         attach = data.Attachment(url="", mime="")
                         fname = media_element.find("a").attrs["href"]
-                        attach.url = os.path.abspath(DIRECTORY+str(fname))
+                        attach.url = os.path.abspath(DIRECTORY + str(fname))
                         attach.mime = filetype.check_mime(attach.url)
                         msg.attachments.append(attach)
 
@@ -104,15 +104,20 @@ for filename in [filenames[0]]:
                 if (
                     author_element := message_element.find("div", class_="from_name")
                 ) is not None:
-                    new_author = author_element.text.strip()
-                    author = new_author if new_author != author else author
-                    authors.add(author)
-                msg.author = author
-
+                    new_author = data.Author(
+                        name=author_element.text.strip(), type=data.Type2.human
+                    )
+                    msg.author = (
+                        new_author if new_author.name != msg.author.name else msg.author
+                    )
+                    authors.add((msg.author.name, msg.author.type))
             # Print
-            chat.attributes.participants = [*authors]
+            for author_tuple in authors:
+                chat.attributes.participants.append(
+                    data.Author(name=author_tuple[0], type=author_tuple[1])
+                )
             print(msg)
             # print(f"{msg.type.value}{(' ' if msg.author != "" else "") + msg.author}: {msg.body}")
             chat.messages.append(msg)
 
-    #print(chat)
+    # print(chat)

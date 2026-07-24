@@ -17,23 +17,11 @@ class Type(Enum):
     group = 'Group'
 
 
-class Attributes(BaseModel):
-    model_config = ConfigDict(
-        populate_by_name=True,
-    )
-    platform: Platform
-    chat_name: Annotated[str, Field(alias='chatName')]
-    """Name of the chat"""
-    type: Type
-    participants: list[str]
-    file_path: Annotated[str, Field(alias='filePath')]
-    """Absolute path to file data was collected from"""
-
-
 class Type1(Enum):
     text = 'Text'
     media = 'Media'
     system = 'System'
+    call = 'Call'
 
 
 class Context(BaseModel):
@@ -56,14 +44,57 @@ class Attachment(BaseModel):
     """URL of attachment"""
 
 
+class Type2(Enum):
+    human = 'Human'
+    bot = 'Bot'
+    system = 'System'
+    webhook = 'Webhook'
+
+
+class Author(BaseModel):
+    model_config = ConfigDict(
+        populate_by_name=True,
+    )
+    name: str | None = None
+    """Sender of message"""
+    type: Type2
+
+
+class Attributes(BaseModel):
+    model_config = ConfigDict(
+        populate_by_name=True,
+    )
+    platform: Platform
+    chat_name: Annotated[str, Field(alias='chatName')]
+    """Name of the chat"""
+    type: Type
+    participants: list[Author]
+    file_path: Annotated[str, Field(alias='filePath')]
+    """Absolute path to file data was collected from"""
+
+
 class Reaction(BaseModel):
     model_config = ConfigDict(
         populate_by_name=True,
     )
     name: str
     """Name of reaction"""
-    author: str
+    author: Author
     """Author of reaction"""
+
+
+class CallInfo(BaseModel):
+    model_config = ConfigDict(
+        populate_by_name=True,
+    )
+    recipient: Author
+    """Recipient of call"""
+    duration: int
+    """Duration of call (in seconds)"""
+    is_success: Annotated[bool, Field(alias='isSuccess')]
+    """Whether call was successful or not"""
+    is_outgoing: Annotated[bool, Field(alias='isOutgoing')]
+    """Whether call was outgoing or not"""
 
 
 class Message(BaseModel):
@@ -77,13 +108,14 @@ class Message(BaseModel):
     timestamp: str | None
     """Timedate when message was sent"""
     type: Type1
-    author: str
+    author: Author
     """Sender of message"""
     body: str | None
     """Text contents of message"""
     context: Context | None
     attachments: list[Attachment | None]
     reactions: list[Reaction | None]
+    call_info: Annotated[CallInfo | None, Field(alias='callInfo')]
 
 
 class ChatData(BaseModel):
@@ -93,6 +125,6 @@ class ChatData(BaseModel):
         populate_by_name=True,
     )
     format_revision: Annotated[int, Field(alias='formatRevision', gt=-1)]
-    """Revision count of this schema format (presently 0)"""
+    """Revision count of this schema format (presently 1)"""
     attributes: Attributes
     messages: list[Message | None]
